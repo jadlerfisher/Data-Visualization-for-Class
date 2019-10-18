@@ -35,40 +35,25 @@ public class dataInput : MonoBehaviour
     // Let's grab that data
     IEnumerator GetChicagoData()
     {
-        //add that URL from the City of Chicago Data Portal
-        string getDataURL = "https://data.cityofchicago.org/resource/5d79-9xqr.json";
-        using (UnityWebRequest www = UnityWebRequest.Get(getDataURL))
+        UnityWebRequest www = new UnityWebRequest("data.cityofchicago.org/resource/5d79-9xqr.json");
+        www.downloadHandler = new DownloadHandlerBuffer();
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
         {
-            www.chunkedTransfer = false;
-            yield return www.Send();
-            if (www.isNetworkError || www.isHttpError)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                if (www.isDone)
-                {
-
-                    string jsonResult = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
-                    Debug.Log(jsonResult);
-
-                    // Now put the JSON in an array
-                    myChicagoData = JsonHelper.getJsonArray<chicagoData>(jsonResult);
-                    visualization.visualizeIt();
-
-                }
-
-            }
-
-
+            Debug.Log(www.error);
         }
+        else
+        {
+            string jsonResult = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+            Debug.Log(jsonResult);
 
-
+            //  // Now put the JSON in an array
+            myChicagoData = JsonHelper.getJsonArray<chicagoData>(jsonResult);
+            visualization.visualizeIt();
+        }
+        
     }
-
-
-
 
    
 
